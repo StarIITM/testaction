@@ -1,0 +1,37 @@
+name: Test Action with Log
+
+on:
+  workflow_dispatch:  # manual trigger
+  schedule:          # optional daily run at 12:00 UTC
+    - cron: "0 12 * * *"
+
+permissions:
+  contents: write  # allow committing back to repo
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 23f2003378@ds.study.iitm.ac.in
+        run: |
+          # Ensure log file exists
+          touch action-log.txt
+          # Append current timestamp
+          echo "$(date): Hello, world!" >> action-log.txt
+
+      - name: Commit log safely
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add action-log.txt
+          # Commit only if changes exist
+          if ! git diff --cached --quiet; then
+            git commit -m "Update action log [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
